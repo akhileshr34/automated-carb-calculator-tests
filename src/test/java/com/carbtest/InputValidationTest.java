@@ -28,36 +28,26 @@ public class InputValidationTest {
         js = (JavascriptExecutor) driver;
 
         driver.get("https://www.calculator.net/carbohydrate-calculator.html");
-
-        // Click US Units tab to ensure the correct fields are shown
-        driver.findElement(By.xpath("//a[contains(@onclick,\"'standard'\")]")).click();
-
-        // Wait for Age field to be visible before proceeding
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("cage")));
+        driver.findElement(By.xpath("//a[contains(@onclick,\"'standard'\")]")).click();  // Clicking US Units tab
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("cage"))); // Wait for Age field to be visible before proceeding
     }
 
     // ─────────────────────────────────────────────────────────────
-    // TC-29: Float value in Weight field
+    // Test 29: Float value in Weight field
     // Expected: result table shown, no NaN
     // ─────────────────────────────────────────────────────────────
     @Test
     void tc29_floatValueInWeightField() {
-        // Age
-        js.executeScript("document.getElementById('cage').value = '30'");
+        js.executeScript("document.getElementById('cage').value = '30'"); // Age
+        driver.findElement(By.cssSelector("label[for='csex1']")).click(); // Gender - Male (click the label since the input is hidden behind a styled span)
 
-        // Gender - Male (click the label since the input is hidden behind a styled span)
-        driver.findElement(By.cssSelector("label[for='csex1']")).click();
-
-        // Height - using JavaScript to set values since fields may not be interactable directly
-        js.executeScript("document.getElementById('cheightfeet').value = '5'");
+        js.executeScript("document.getElementById('cheightfeet').value = '5'"); // Height - using JavaScript to set values since fields may not be interactable directly
         js.executeScript("document.getElementById('cheightinch').value = '7'");
 
-        // Weight - float value
-        js.executeScript("document.getElementById('cpound').value = '150.75'");
+        js.executeScript("document.getElementById('cpound').value = '150.75'"); // Weight - float value
 
-        // Activity
         new Select(driver.findElement(By.id("cactivity")))
-            .selectByVisibleText("Moderate: exercise 4-5 times/week");
+            .selectByVisibleText("Moderate: exercise 4-5 times/week"); // Activity
 
         // Calculate
         driver.findElement(By.name("x")).click();
@@ -78,34 +68,26 @@ public class InputValidationTest {
     // ─────────────────────────────────────────────────────────────
     @Test
     void tc30_floatValueInHeightInchesField() {
-        // Age
-        js.executeScript("document.getElementById('cage').value = '30'");
+        js.executeScript("document.getElementById('cage').value = '30'"); // Same setup as above for everything, just float value for inches. 
+        driver.findElement(By.cssSelector("label[for='csex1']")).click();  
 
-        // Gender - Male
-        driver.findElement(By.cssSelector("label[for='csex1']")).click();
-
-        // Height - float inches value
-        js.executeScript("document.getElementById('cheightfeet').value = '5'");
+        js.executeScript("document.getElementById('cheightfeet').value = '5'"); 
         js.executeScript("document.getElementById('cheightinch').value = '7.5'");
 
-        // Weight
-        js.executeScript("document.getElementById('cpound').value = '150'");
-
-        // Activity
+        js.executeScript("document.getElementById('cpound').value = '150'"); 
+        
         new Select(driver.findElement(By.id("cactivity")))
             .selectByVisibleText("Moderate: exercise 4-5 times/week");
 
-        // Calculate
         driver.findElement(By.name("x")).click();
 
-        // Wait for result table and assert it is displayed with no NaN
         WebElement result = wait.until(
             ExpectedConditions.visibilityOfElementLocated(By.cssSelector("table.cinfoT"))
         );
         Assertions.assertTrue(result.isDisplayed(),
             "Result table should display for float height input");
         Assertions.assertFalse(result.getText().contains("NaN"),
-            "Result should not contain NaN");
+            "Result should not contain NaN"); // This means that float value was not handled correctly 
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -114,34 +96,27 @@ public class InputValidationTest {
     // ─────────────────────────────────────────────────────────────
     @Test
     void tc31_emptyAgeField() {
-        // Age - cleared to empty (default value is 25 so must be explicitly cleared)
-        js.executeScript("document.getElementById('cage').value = ''");
-
-        // Gender - Male
+        js.executeScript("document.getElementById('cage').value = ''"); // Same setup as previous tests 
+        
         driver.findElement(By.cssSelector("label[for='csex1']")).click();
 
-        // Height
         js.executeScript("document.getElementById('cheightfeet').value = '5'");
         js.executeScript("document.getElementById('cheightinch').value = '7'");
-
-        // Weight
+        
         js.executeScript("document.getElementById('cpound').value = '150'");
 
-        // Activity
         new Select(driver.findElement(By.id("cactivity")))
             .selectByVisibleText("Moderate: exercise 4-5 times/week");
 
-        // Calculate
         driver.findElement(By.name("x")).click();
 
-        // Wait for error message and assert it contains the expected text
         WebElement error = wait.until(
-            ExpectedConditions.visibilityOfElementLocated(By.cssSelector("font[color='red']"))
+            ExpectedConditions.visibilityOfElementLocated(By.cssSelector("font[color='red']")) // Wait for error, then check if it is there by seeing if there is something with red font
         );
         Assertions.assertTrue(error.isDisplayed(),
             "Error message should appear when Age is empty");
-        Assertions.assertTrue(error.getText().contains("Please provide an age between 18 and 80"),
-            "Error text should mention valid age range");
+        Assertions.assertTrue(error.getText().contains("Please provide an age between 18 and 80"), // The error message itself
+            "Error text should mention valid age range"); 
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -150,29 +125,21 @@ public class InputValidationTest {
     // ─────────────────────────────────────────────────────────────
     @Test
     void tc32_emptyHeightField() {
-        // Age
         js.executeScript("document.getElementById('cage').value = '30'");
-
-        // Gender - Male
         driver.findElement(By.cssSelector("label[for='csex1']")).click();
 
-        // Height - both fields cleared to empty (defaults are 5 and 10)
         js.executeScript("document.getElementById('cheightfeet').value = ''");
         js.executeScript("document.getElementById('cheightinch').value = ''");
 
-        // Weight
         js.executeScript("document.getElementById('cpound').value = '150'");
 
-        // Activity
         new Select(driver.findElement(By.id("cactivity")))
             .selectByVisibleText("Moderate: exercise 4-5 times/week");
 
-        // Calculate
         driver.findElement(By.name("x")).click();
 
-        // Wait for error message and assert it is displayed
         WebElement error = wait.until(
-            ExpectedConditions.visibilityOfElementLocated(By.cssSelector("font[color='red']"))
+            ExpectedConditions.visibilityOfElementLocated(By.cssSelector("font[color='red']")) // Wait for error, then check if it is there by seeing if there is something with red font
         );
         Assertions.assertTrue(error.isDisplayed(),
             "Error message should appear when Height is empty");
